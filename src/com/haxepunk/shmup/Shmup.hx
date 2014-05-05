@@ -11,8 +11,12 @@ class Shmup
 	public static var i:Shmup;
 	
 	public var baseSpeed = 0.01;
+	
+	public var screenX:Float;
+	public var screenY:Float;
 	public var screenWidth:Float;
 	public var screenHeight:Float;
+	
 	public var playerX = 160.0;
 	public var playerY = 240.0;
 	
@@ -25,17 +29,20 @@ class Shmup
 	
 	private var scene:Scene;
 	
-	public function new(width:Float, height:Float, scene:Scene)
+	public function new(x:Float, y:Float, width:Float, height:Float, scene:Scene)
 	{
+		screenX = x;
+		screenY = y;
 		screenWidth = width;
 		screenHeight = height;
+		
 		this.scene = scene;
 		
 		entities = new Array<ShmupEntity>();
 		
 		//erase these
-		playerX = HXP.halfWidth;
-		playerY = HXP.height * 0.8;
+		playerX = screenX + (screenWidth * 0.25);
+		playerY = screenHeight * 0.8;
 		
 		// static singleton?
 		i = this;
@@ -112,7 +119,11 @@ class Shmup
 	
 	public static function isIn(p:Xy, spacing:Float = 0):Bool
 	{
-		return p.x >= -spacing && p.x <= HXP.width + spacing && p.y >= -spacing && p.y <= HXP.height + spacing;
+		var minX:Float = (-spacing + Shmup.i.screenX);
+		var maxX:Float = (Shmup.i.screenX + Shmup.i.screenWidth) + spacing;
+		var minY:Float = (-spacing + Shmup.i.screenY);
+		var maxY:Float = (Shmup.i.screenY + Shmup.i.screenHeight) + spacing;
+		return p.x >= minX && p.x <= maxX && p.y >= minY && p.y <= maxY;
 	}
 	
 	private function get_enemyCount():Int

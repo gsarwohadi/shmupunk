@@ -24,7 +24,7 @@ class ApplicationMain {
 		
 		
 		
-		//nme.Lib.setPackage("", "Main", "com.example.app", "1.0.0");
+		//nme.Lib.setPackage("SoybeanSoft", "ShmupPunkDemo", "com.soybeansoft.shmupunkdemo", "0.1.0");
 		
 		loaderInfo = flash.Lib.current.loaderInfo;
 		

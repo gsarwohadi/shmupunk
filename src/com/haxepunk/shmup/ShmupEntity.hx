@@ -54,8 +54,8 @@ class ShmupEntity extends Entity
 			return false;
 		}
 		
-		pos.x = actor.xVar.value * HXP.width;
-		pos.y = actor.yVar.value * HXP.height;
+		pos.x = Shmup.i.screenX + (actor.xVar.value * Shmup.i.screenWidth);
+		pos.y = Shmup.i.screenY + (actor.yVar.value * Shmup.i.screenHeight);
 		//angle = actor.angleVar.value * Math.PI / 180;
 		
 		if (actor.type == Bullet)

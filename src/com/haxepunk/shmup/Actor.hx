@@ -35,7 +35,6 @@ class Actor
 	public var parent:Actor;
 	public var children:Array<Actor>;
 	
-	public var shmup(default, null):Shmup;
 	public var exists(get_exists, null):Bool;
 	
 	private var baseSpeed:Float = 0.01;
@@ -47,6 +46,7 @@ class Actor
 	private var isRemoving = false;
 	private var wasInScreen = false;
 	private var sPos:Xy;
+	private var shmup(default, null):Shmup;
 	
 	public function new(name:String, args:Array<Float> = null, parent:Actor = null)
 	{
@@ -255,18 +255,18 @@ class Actor
 		switch (name)
 		{
 			case "$playerX", "$px":
-				return shmup.playerX / shmup.screenWidth;
+				return shmup.playerX / (shmup.screenX + shmup.screenWidth);
 				
 			case "$playerY", "$py":
-				return shmup.playerY / shmup.screenHeight;
+				return shmup.playerY / (shmup.screenY + shmup.screenHeight);
 				
 			case "$enemyCount", "$ec":
 				return shmup.enemyCount;
 				
 			case "$angleToPlayer", "$atp":
 				//HXP.console.log([shmup.playerX, shmup.playerY]);
-				var px = shmup.playerX / shmup.screenWidth;
-				var py = shmup.playerY / shmup.screenHeight;
+				var px = shmup.playerX / (shmup.screenX + shmup.screenWidth);
+				var py = shmup.playerY / (shmup.screenY + shmup.screenHeight);
 				return Math.atan2(px - xVar.value, py - yVar.value) * 180 / Math.PI;
 				
 			case "$distanceToPlayer", "$dtp":
