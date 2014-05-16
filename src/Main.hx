@@ -43,6 +43,11 @@ class Main extends Engine
 		this.addChild(sampleText);
 		//sampleText.text = (Sample.s[13][1].split("\r\n").join("\r"));
     }
+
+    public function getText():String
+    {
+    	return sampleText.text;
+    }
 	
 	public function modifyText(text:String):Void
 	{

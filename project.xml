@@ -10,6 +10,7 @@
 	<window fullscreen="true" if="mobile" />
 	<window orientation="landscape" vsync="true" antialiasing="0" if="cpp" />
 
+	<source path="lib" />
 	<source path="src" />
 
 	<haxelib name="HaxePunk" />

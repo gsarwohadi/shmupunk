@@ -30,6 +30,7 @@ class MainScene extends Scene
 	private var shmup:Shmup;
 	private var currentSample:String;
 	
+	private var startbutton:ToggleButton;
 	private var selectbutton:ToggleButton;
 	private var samplelist:MenuList;
 
@@ -53,8 +54,8 @@ class MainScene extends Scene
 		
 		var panel = new Panel(0, 0, Math.round(HXP.halfWidth), Math.round(HXP.height), true);
 		var innerpanel = new Panel(Main.padding, Main.padding, Math.round(HXP.halfWidth - 2 * Main.padding), Math.round(HXP.height - 2 * Main.padding) - 24, true);
-		var applybutton = new Button("Start", 8, panel.height - 8 - 24, Math.round(panel.width * 0.5) - 8, 24);
-		applybutton.addEventListener(Button.CLICKED, onClickedApply);
+		startbutton = new ToggleButton("Start", true, 8, panel.height - 8 - 24, Math.round(panel.width * 0.5) - 8, 24);
+		startbutton.addEventListener(Button.CLICKED, onClickedStart);
 		selectbutton = new ToggleButton("Select", false, Math.round(panel.width * 0.5), panel.height - 8 - 24, Math.round(panel.width * 0.5) - 8, 24);
 		selectbutton.addEventListener(Button.CLICKED, onClickedSelect);
 		samplelist = new MenuList(selectbutton.x, selectbutton.y, Math.round(HXP.halfWidth * 0.5));
@@ -67,7 +68,7 @@ class MainScene extends Scene
 		samplelist.localY = selectbutton.y - samplelist.height;
 		samplelist.addEventListener(MenuList.CLICKED, onClickedList);
 		
-		panel.addControl(applybutton);
+		panel.addControl(startbutton);
 		panel.addControl(selectbutton);
 		panel.addControl(innerpanel);
 		panel.addControl(samplelist);
@@ -100,9 +101,11 @@ class MainScene extends Scene
 		shmup.update();
 	}
 
-	private function onClickedApply(e:ControlEvent):Void
+	private function onClickedStart(e:ControlEvent):Void
 	{
-		
+		currentSample = main.getText();
+		shmup.cleanup();
+		readShmup();
 	}
 
 	private function onClickedSelect(e:ControlEvent):Void
