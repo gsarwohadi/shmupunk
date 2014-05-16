@@ -100,6 +100,8 @@ class DefaultAssetLibrary extends AssetLibrary {
 		type.set ("graphics/laserBlue01.png", Reflect.field (AssetType, "image".toUpperCase ()));
 		className.set ("graphics/laserBlue10.png", __ASSET__graphics_laserblue10_png);
 		type.set ("graphics/laserBlue10.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		className.set ("graphics/laserGreen11.png", __ASSET__graphics_lasergreen11_png);
+		type.set ("graphics/laserGreen11.png", Reflect.field (AssetType, "image".toUpperCase ()));
 		className.set ("graphics/playerShip1_green.png", __ASSET__graphics_playership1_green_png);
 		type.set ("graphics/playerShip1_green.png", Reflect.field (AssetType, "image".toUpperCase ()));
 		className.set ("font/04B_03__.ttf", __ASSET__font_5);
@@ -146,6 +148,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 		addExternal("graphics/enemyBlack5.png", "image", "graphics/enemyBlack5.png");
 		addExternal("graphics/laserBlue01.png", "image", "graphics/laserBlue01.png");
 		addExternal("graphics/laserBlue10.png", "image", "graphics/laserBlue10.png");
+		addExternal("graphics/laserGreen11.png", "image", "graphics/laserGreen11.png");
 		addExternal("graphics/playerShip1_green.png", "image", "graphics/playerShip1_green.png");
 		addEmbed("font/04B_03__.ttf", "font", __ASSET__font_5);
 		addEmbed("font/lythgame.ttf", "font", __ASSET__font_lythgame_ttf);
@@ -254,6 +257,9 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		className.set ("graphics/laserBlue10.png", __ASSET__graphics_laserblue10_png);
 		type.set ("graphics/laserBlue10.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		
+		className.set ("graphics/laserGreen11.png", __ASSET__graphics_lasergreen11_png);
+		type.set ("graphics/laserGreen11.png", Reflect.field (AssetType, "image".toUpperCase ()));
 		
 		className.set ("graphics/playerShip1_green.png", __ASSET__graphics_playership1_green_png);
 		type.set ("graphics/playerShip1_green.png", Reflect.field (AssetType, "image".toUpperCase ()));
@@ -884,6 +890,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 @:keep class __ASSET__graphics_enemyblack5_png extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }
 @:keep class __ASSET__graphics_laserblue01_png extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }
 @:keep class __ASSET__graphics_laserblue10_png extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }
+@:keep class __ASSET__graphics_lasergreen11_png extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }
 @:keep class __ASSET__graphics_playership1_green_png extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }
 @:keep class __ASSET__font_5 extends flash.text.Font { }
 @:keep class __ASSET__font_lythgame_ttf extends flash.text.Font { }
@@ -903,6 +910,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 
 
 @:keep class __ASSET__font_04b_03___ttf extends flash.text.Font { #if (!openfl_html5_dom) public function new () { super (); fontName = "font/04B_03__.ttf"; } #end }
+
 
 
 
@@ -967,6 +975,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 @:bitmap("assets/graphics/enemyBlack5.png") class __ASSET__graphics_enemyblack5_png extends flash.display.BitmapData {}
 @:bitmap("assets/graphics/laserBlue01.png") class __ASSET__graphics_laserblue01_png extends flash.display.BitmapData {}
 @:bitmap("assets/graphics/laserBlue10.png") class __ASSET__graphics_laserblue10_png extends flash.display.BitmapData {}
+@:bitmap("assets/graphics/laserGreen11.png") class __ASSET__graphics_lasergreen11_png extends flash.display.BitmapData {}
 @:bitmap("assets/graphics/playerShip1_green.png") class __ASSET__graphics_playership1_green_png extends flash.display.BitmapData {}
 @:font("assets/font/04B_03__.ttf") class __ASSET__font_5 extends flash.text.Font {}
 @:font("assets/font/lythgame.ttf") class __ASSET__font_lythgame_ttf extends flash.text.Font {}

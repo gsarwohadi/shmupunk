@@ -15,6 +15,8 @@ class Bullet extends ShmupEntity
 	public override function setup(actor:Actor):Void
 	{
 		super.setup(actor);
+
+		type = "EnemyBullet";
 		
 		image = new Image("graphics/laserBlue01.png");
 		image.centerOrigin();

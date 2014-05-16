@@ -51,62 +51,61 @@ class Actor
 	public function new(name:String, args:Array<Float> = null, parent:Actor = null)
 	{
 		//HXP.console.log(["Pre new Actor", name, Command.s.toString(), parent]);
-		
 		var command = Command.s.get(name);
-		if (command == null)
-			throw "FUNCTION " + name + " doesn't exist";
+		//if (command == null)
+		//	throw "FUNCTION " + name + " doesn't exist";
 		
-		//HXP.console.log(["Got command", command.toString(), command.args]);
-		//HXP.console.log(["Command actor:", command.actorType]);
-		
-		this.name = name;
-		vars = new Map<String, Variable>();
-		var ai = 0;
-		for (a in command.args)
+		if ( command != null )
 		{
-			var v = addVar(a.getAsName());
-			//HXP.console.log(["Actor. +Var", a.getAsName()]);
-			if (args != null && ai < args.length) 
-				v.value = args[ai];
-			ai++;
+			//HXP.console.log(["Got command", command.toString(), command.args]);
+			//HXP.console.log(["Command actor:", command.actorType]);
+			
+			this.name = name;
+			vars = new Map<String, Variable>();
+			var ai = 0;
+			for (a in command.args)
+			{
+				var v = addVar(a.getAsName());
+				//HXP.console.log(["Actor. +Var", a.getAsName()]);
+				if (args != null && ai < args.length) 
+					v.value = args[ai];
+				ai++;
+			}
+			
+			type = command.actorType;
+			xVar = addVar("@x");
+			yVar = addVar("@y");
+			angleVar = addVar("@angle");
+			speedVar = addVar("@speed");
+			scopeStates = new Array<ScopeState>();
+			children = new Array<Actor>();
+			dynamicValues = new Map<String, Float>();
+			
+			this.parent = parent;
+			if (parent == null) 
+			{
+				xVar.value = 0.5;
+				yVar.value = 0.2;
+			}
+			else
+			{
+				xVar.value = parent.xVar.value;
+				yVar.value = parent.yVar.value;
+			}
+			angleVar.value = 0;
+			speedVar.value = 0;
+			currentState = new ScopeState(this, command);
 		}
-		
-		type = command.actorType;
-		xVar = addVar("@x");
-		yVar = addVar("@y");
-		angleVar = addVar("@angle");
-		speedVar = addVar("@speed");
-		scopeStates = new Array<ScopeState>();
-		children = new Array<Actor>();
-		dynamicValues = new Map<String, Float>();
-		
-		this.parent = parent;
-		if (parent == null) 
-		{
-			xVar.value = 0.5;
-			yVar.value = 0.2;
-		}
-		else
-		{
-			xVar.value = parent.xVar.value;
-			yVar.value = parent.yVar.value;
-		}
-		angleVar.value = 0;
-		speedVar.value = 0;
-		currentState = new ScopeState(this, command);
 		
 		if (parent != null)
 			parent.children.push(this);
 		
 		shmup = Shmup.i;
-		
-		//HXP.console.log(["Post new Actor", name]);
 	}
 	
 	public function update():Bool
 	{
 		//HXP.console.log(["update Actor", name, type]);
-		
 		for (v in vars)
 			v.update(this);
 		
@@ -130,10 +129,9 @@ class Actor
 		if (type == Enemy || type == Turret || type == Bullet)
 		{
 			if (x > -0.1 && x < 1.1 && y > -0.1 && y < 1.1)
-			{
 				wasInScreen = true;
-			}
-			else {
+			else
+			{
 				if (wasInScreen)
 					remove();
 			}
@@ -255,18 +253,23 @@ class Actor
 		switch (name)
 		{
 			case "$playerX", "$px":
-				return shmup.playerX / (shmup.screenX + shmup.screenWidth);
+				//return shmup.playerX / (shmup.screenX + shmup.screenWidth);
+				return shmup.playerX / shmup.screenWidth;
 				
 			case "$playerY", "$py":
-				return shmup.playerY / (shmup.screenY + shmup.screenHeight);
+				//return shmup.playerY / (shmup.screenY + shmup.screenHeight);
+				return shmup.playerY / shmup.screenHeight;
 				
 			case "$enemyCount", "$ec":
 				return shmup.enemyCount;
 				
 			case "$angleToPlayer", "$atp":
 				//HXP.console.log([shmup.playerX, shmup.playerY]);
-				var px = shmup.playerX / (shmup.screenX + shmup.screenWidth);
-				var py = shmup.playerY / (shmup.screenY + shmup.screenHeight);
+				//var px = shmup.playerX / (shmup.screenX + shmup.screenWidth);
+				var px = shmup.playerX / shmup.screenWidth;
+				//var py = shmup.playerY / (shmup.screenY + shmup.screenHeight);
+				var py = shmup.playerY / shmup.screenHeight;
+				HXP.console.log([shmup.playerX, shmup.playerY, px, py]);
 				return Math.atan2(px - xVar.value, py - yVar.value) * 180 / Math.PI;
 				
 			case "$distanceToPlayer", "$dtp":
@@ -317,4 +320,6 @@ enum ActorType
 	Enemy;
 	Turret;
 	Bullet;
+	Ally;
+	AllyBullet;
 }

@@ -1,8 +1,9 @@
 package entities;
 
+import com.haxepunk.HXP;
 import com.haxepunk.shmup.Actor;
+import com.haxepunk.shmup.Shmup;
 import com.haxepunk.shmup.ShmupEntity;
-
 import com.haxepunk.graphics.Image;
 
 class Enemy extends ShmupEntity
@@ -16,6 +17,10 @@ class Enemy extends ShmupEntity
 	{
 		super.setup(actor);
 		
+		type = "Enemy";
+		collidable = true;
+		setHitbox(16, 16, 8, 8);
+
 		if (actor.name.substr(0, 3) == "big")
 		{
 			image = new Image("graphics/enemyBlack5.png");
@@ -33,11 +38,37 @@ class Enemy extends ShmupEntity
 		else
 		{
 			image = new Image("graphics/enemyBlack1.png");
+			shield = 1;
 			size.v = 30;
 		}
 		image.centerOrigin();
 		image.scale = 0.5;
 		
 		graphic = image;
+	}
+
+	public override function update()
+	{
+		super.update();
+
+		//var collides:Array<ShmupEntity> = new Array<ShmupEntity>();
+		//collideInto("AllyBullet", x, y, collides);
+		//HXP.console.log(["Check collide", collides.length]);
+		//if ( collides != null && collides.length > 0 )
+		//{
+		//	HXP.console.log(["Collide with AllyBullet!"]);
+		//}
+
+		//var collide:ShmupEntity = cast collide("AllyBullet", x, y);
+		//if ( collide != null )
+		//{
+		//	HXP.console.log(["Collide with AllyBullet!"]);
+		//}
+
+		if ( shield <= 0 )
+		{
+			destroy();
+			scene.recycle(this);
+		}
 	}
 }

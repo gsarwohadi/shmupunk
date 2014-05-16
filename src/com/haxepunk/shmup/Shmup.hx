@@ -26,6 +26,8 @@ class Shmup
 	private var EnemyClass:Class<ShmupEntity>;
 	private var BulletClass:Class<ShmupEntity>;
 	private var TurretClass:Class<ShmupEntity>;
+	private var AllyClass:Class<ShmupEntity>;
+	private var AllyBulletClass:Class<ShmupEntity>;
 	
 	private var scene:Scene;
 	
@@ -40,17 +42,13 @@ class Shmup
 		
 		entities = new Array<ShmupEntity>();
 		
-		//erase these
-		playerX = screenX + (screenWidth * 0.25);
-		playerY = screenHeight * 0.8;
-		
 		// static singleton?
 		i = this;
 	}
 	
 	public function setEntity(type:ActorType, entityClass:Class<ShmupEntity>):Void
 	{
-		HXP.console.log(["Shmup set entity", type]);
+		//HXP.console.log(["Shmup set entity", type]);
 		
 		switch (type)
 		{
@@ -60,6 +58,10 @@ class Shmup
 				BulletClass = entityClass;
 			case Turret:
 				TurretClass = entityClass;
+			case Ally:
+				AllyClass = entityClass;
+			case AllyBullet:
+				AllyBulletClass = entityClass;
 			default:
 				
 		}
@@ -75,6 +77,10 @@ class Shmup
 				return BulletClass;
 			case Turret:
 				return TurretClass;
+			case Ally:
+				return AllyClass;
+			case AllyBullet:
+				return AllyBulletClass;
 			default:
 				return ShmupEntity;
 		}
@@ -83,7 +89,8 @@ class Shmup
 	
 	public function create(name:String, args:Array<Float> = null, parent:Actor = null):Void
 	{
-		//HXP.console.log(["[SHMUP] Adding Actor", name, "Parent: ", parent]);
+		//HXP.console.log(["[SHMUP] Create Actor", name, "Parent: ", parent]);
+		//HXP.console.log(["[SHMUP] >> Args:", args]);
 		var actor:Actor = new Actor(name, args, parent);
 		
 		var EntityClass:Class<ShmupEntity> = getClass(actor.type);
@@ -115,6 +122,15 @@ class Shmup
 				entities.splice(i, 1);
 			}
 		}
+	}
+
+	public function cleanup():Void
+	{
+		for ( entity in entities )
+		{
+			scene.recycle(entity);
+		}
+		entities = [];
 	}
 	
 	public static function isIn(p:Xy, spacing:Float = 0):Bool

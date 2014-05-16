@@ -40,6 +40,7 @@ class ShmupEntity extends Entity
 		pos = new Xy();
 		vel = new Xy();
 		size = new Xy();
+
 		pPos = new Xy();
 		sVel = new Xy();
 		
@@ -48,70 +49,72 @@ class ShmupEntity extends Entity
 	
 	public function updateActor():Bool
 	{
-		if ( !actor.update() )
-		{
-			//HXP.console.log([" [!] ShmupEntity update return false!", actor.name, actor.type]);
-			return false;
-		}
-		
-		pos.x = Shmup.i.screenX + (actor.xVar.value * Shmup.i.screenWidth);
-		pos.y = Shmup.i.screenY + (actor.yVar.value * Shmup.i.screenHeight);
-		//angle = actor.angleVar.value * Math.PI / 180;
-		
-		if (actor.type == Bullet)
-		{
-			
-			if (!Shmup.isIn(pos, 10)) 
+		//if ( actor != null )
+		//{
+			if ( !actor.update() )
 			{
-				//HXP.console.log([" [!] ShmupEntity Bullet beyond screen!"]);
-				destroy();
+				//HXP.console.log([" [!] ShmupEntity update return false!", actor.name, actor.type]);
 				return false;
 			}
 			
-			sVel.xy = pos;
-			sVel.decrementBy(pPos);
+			pos.x = Shmup.i.screenX + (actor.xVar.value * Shmup.i.screenWidth);
+			pos.y = Shmup.i.screenY + (actor.yVar.value * Shmup.i.screenHeight);
+			//angle = actor.angleVar.value * Math.PI / 180;
 			
-			var s = sVel.length;
-			var t = actor.ticks;
-			if (t == 2) 
+			if (actor.type == Bullet)
 			{
-				if (actor.parent.type != Bullet) 
+				
+				if (!Shmup.isIn(pos, 10)) 
 				{
-					//Particle.add(pos, Color.red.gz.gz, 15, 5, s, 60, angle, 1);
-					//fireSe.play();
+					//HXP.console.log([" [!] ShmupEntity Bullet beyond screen!"]);
+					destroy();
+					return false;
 				}
-			}
-			else if (t > 2)
-			{
-				//Particle.add(pos, Color.magenta.gz, 5, 1, s, 15, angle + Math.PI, 0);
+				
+				//sVel.xy = pos;
+				//sVel.decrementBy(pPos);
+				
+				//var s = sVel.length;
+				//var t = actor.ticks;
+				//if (t == 2) 
+				//{
+				//	if (actor.parent.type != Bullet) 
+				//	{
+						//Particle.add(pos, Color.red.gz.gz, 15, 5, s, 60, angle, 1);
+						//fireSe.play();
+				//	}
+				//}
+				//else if (t > 2)
+				//{
+					//Particle.add(pos, Color.magenta.gz, 5, 1, s, 15, angle + Math.PI, 0);
+				//}
+				
+				//bulletShape.draw(pos, angle);
+				
+				//if ( entity != null )
+				//{
+					//var degangle:Float = 180 / Math.PI * angle;
+					//HXP.console.log(["Bullet", pos.x, pos.y, actor.angleVar.value]);
+					//HXP.console.log([" > Entity", entity.name, entity.x, entity.y]);
+					//if (image != null)
+					//	image.angle = actor.angleVar.value;
+					//x = pos.x;
+					//y = pos.y;
+					//HXP.console.log([" >> Entity", entity.name, entity.x, entity.y]);
+				//}
 			}
 			
-			//bulletShape.draw(pos, angle);
+			if ( image != null )
+				image.angle = actor.angleVar.value;
+
+			pPos.xy = pos;
+			x = pPos.x;
+			y = pPos.y;
 			
-			//if ( entity != null )
-			//{
-				//var degangle:Float = 180 / Math.PI * angle;
-				//HXP.console.log(["Bullet", pos.x, pos.y, actor.angleVar.value]);
-				//HXP.console.log([" > Entity", entity.name, entity.x, entity.y]);
-				//if (image != null)
-				//	image.angle = actor.angleVar.value;
-				//x = pos.x;
-				//y = pos.y;
-				//HXP.console.log([" >> Entity", entity.name, entity.x, entity.y]);
-			//}
-		}
-		//if (shape != null)
-			//shape.draw(pos, angle);
-		pPos.xy = pos;
-		
-		if ( image != null )
-			image.angle = actor.angleVar.value;
-		x = pPos.x;
-		y = pPos.y;
-		
-		return true;
+			return true;
+		//}
 	}
-	
+
 	private function destroy():Void
 	{
 		//HXP.console.log(["ShmupEntity destroy", actor.name, actor.type]);
@@ -127,7 +130,7 @@ class ShmupEntity extends Entity
 			//Particle.add(pos, Color.magenta.gz, 10, 10, 5);
 		//}
 		
-		if ( actor.exists )
+		if ( actor != null && actor.exists )
 			actor.vanish();
 	}
 }
