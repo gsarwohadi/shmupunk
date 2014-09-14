@@ -269,7 +269,7 @@ class Actor
 				var px = shmup.playerX / shmup.screenWidth;
 				//var py = shmup.playerY / (shmup.screenY + shmup.screenHeight);
 				var py = shmup.playerY / shmup.screenHeight;
-				HXP.console.log([shmup.playerX, shmup.playerY, px, py]);
+				//HXP.console.log([shmup.playerX, shmup.playerY, px, py]);
 				return Math.atan2(px - xVar.value, py - yVar.value) * 180 / Math.PI;
 				
 			case "$distanceToPlayer", "$dtp":

@@ -56,6 +56,7 @@ class Main extends Engine
 
 	public function displayText(status:Bool):Void
 	{
+		HXP.console.log(["Display text", status]);
 		sampleText.visible = status;
 	}
 	

@@ -143,7 +143,7 @@ class Command
 	
 	private static function addRootCommand(name:String, command:Command):Void 
 	{
-		HXP.console.log(["addRootCommand", name, command.toString()]);
+		//HXP.console.log(["addRootCommand", name, command.toString()]);
 		
 		s.set(name, command);
 		

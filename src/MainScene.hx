@@ -47,7 +47,7 @@ class MainScene extends Scene
 		//setSample(1);
 		shmup = new Shmup(HXP.halfWidth, 0, HXP.halfWidth, HXP.height, this);
 		
-		HXP.console.log([shmup.playerX, shmup.playerY]);
+		//HXP.console.log([shmup.playerX, shmup.playerY]);
 		
 		shmup.setEntity(ActorType.Enemy, entities.Enemy);
 		shmup.setEntity(ActorType.Bullet, entities.Bullet);
@@ -56,9 +56,7 @@ class MainScene extends Scene
 		var panel = new Panel(0, 0, Math.round(HXP.halfWidth), Math.round(HXP.height), true);
 		var innerpanel = new Panel(Main.padding, Main.padding, Math.round(HXP.halfWidth - 2 * Main.padding), Math.round(HXP.height - 2 * Main.padding) - 24, true);
 		startbutton = new ToggleButton("Start", true, 8, panel.height - 8 - 24, Math.round(panel.width * 0.5) - 8, 24);
-		startbutton.addEventListener(Button.CLICKED, onClickedStart);
 		selectbutton = new ToggleButton("Select", false, Math.round(panel.width * 0.5), panel.height - 8 - 24, Math.round(panel.width * 0.5) - 8, 24);
-		selectbutton.addEventListener(Button.CLICKED, onClickedSelect);
 		samplelist = new MenuList(selectbutton.x, selectbutton.y, Math.round(HXP.halfWidth * 0.5));
 		for ( sample in Sample.s )
 		{
@@ -67,7 +65,6 @@ class MainScene extends Scene
 			samplelist.addControl(sampleitem);
 		}
 		samplelist.localY = selectbutton.y - samplelist.height;
-		samplelist.addEventListener(MenuList.CLICKED, onClickedList);
 		
 		panel.addControl(startbutton);
 		panel.addControl(selectbutton);
@@ -78,13 +75,17 @@ class MainScene extends Scene
 	
 	public override function begin()
 	{
+		startbutton.addEventListener(Button.CLICKED, onClickedStart);
+		selectbutton.addEventListener(Button.CLICKED, onClickedSelect);
+		samplelist.addEventListener(MenuList.CLICKED, onClickedList);
+
 		readShmup();
 		main.modifyText(currentSample);
 		checkSelectButton();
 
 		player = new Player();
-		player.x = shmup.screenX + (shmup.screenWidth * 0.15);
-		player.y = shmup.screenHeight * 0.18;
+		player.x = shmup.screenX + (shmup.screenWidth * 0.5);
+		player.y = shmup.screenHeight * 0.8;
 		add(player);
 
 		HXP.console.log(["Created player pos:", player.x, player.y]);
@@ -102,11 +103,20 @@ class MainScene extends Scene
 		}
 
 		if ( startbutton.checked )
+		{
 			shmup.update();
+		}
+
+		if ( selectbutton.checked )
+		{
+			checkSelectButton();
+		}
 	}
 
 	private function onClickedStart(e:ControlEvent):Void
 	{
+		HXP.console.log(["Click start button"]);
+
 		if ( startbutton.checked )
 		{
 			currentSample = main.getText();
@@ -121,12 +131,15 @@ class MainScene extends Scene
 
 	private function onClickedSelect(e:ControlEvent):Void
 	{
+		HXP.console.log(["Click select button"]);
+
 		checkSelectButton();
 	}
 
 	private function onClickedList(e:ControlEvent):Void
 	{
-		HXP.console.log([e.control, samplelist.selectedId]);
+		//HXP.console.log([e.control, samplelist.selectedId]);
+
 		setSample(samplelist.selectedId);
 		main.modifyText(currentSample);
 		selectbutton.checked = false;
@@ -146,7 +159,6 @@ class MainScene extends Scene
 			mitem.label.visible = selectbutton.checked;
 		}
 		samplelist.visible = selectbutton.checked;
-
 		main.displayText(!samplelist.visible);
 	}
 	
