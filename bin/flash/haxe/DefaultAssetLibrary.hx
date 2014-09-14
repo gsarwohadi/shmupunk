@@ -1,20 +1,26 @@
 package;
 
 
-import flash.display.Bitmap;
-import flash.display.BitmapData;
-import flash.display.MovieClip;
-import flash.text.Font;
-import flash.media.Sound;
-import flash.net.URLRequest;
-import flash.utils.ByteArray;
+import haxe.Timer;
 import haxe.Unserializer;
+import openfl.display.Bitmap;
+import openfl.display.BitmapData;
+import openfl.display.MovieClip;
+import openfl.events.Event;
+import openfl.text.Font;
+import openfl.media.Sound;
+import openfl.net.URLRequest;
+import openfl.utils.ByteArray;
 import openfl.Assets;
 
 #if (flash || js)
-import flash.display.Loader;
-import flash.events.Event;
-import flash.net.URLLoader;
+import openfl.display.Loader;
+import openfl.events.Event;
+import openfl.net.URLLoader;
+#end
+
+#if sys
+import sys.FileSystem;
 #end
 
 #if ios
@@ -22,13 +28,17 @@ import openfl.utils.SystemPath;
 #end
 
 
-@:access(flash.media.Sound)
+@:access(openfl.media.Sound)
 class DefaultAssetLibrary extends AssetLibrary {
 	
 	
-	public static var className (default, null) = new Map <String, Dynamic> ();
-	public static var path (default, null) = new Map <String, String> ();
-	public static var type (default, null) = new Map <String, AssetType> ();
+	public var className (default, null) = new Map <String, Dynamic> ();
+	public var path (default, null) = new Map <String, String> ();
+	public var type (default, null) = new Map <String, AssetType> ();
+	
+	private var lastModified:Float;
+	private var timer:Timer;
+	
 	
 	public function new () {
 		
@@ -36,328 +46,378 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#if flash
 		
-		className.set ("gfx/debug/console_debug.png", __ASSET__gfx_debug_console_debug_png);
-		type.set ("gfx/debug/console_debug.png", Reflect.field (AssetType, "image".toUpperCase ()));
-		className.set ("gfx/debug/console_hidden.png", __ASSET__gfx_debug_console_hidden_png);
-		type.set ("gfx/debug/console_hidden.png", Reflect.field (AssetType, "image".toUpperCase ()));
-		className.set ("gfx/debug/console_logo.png", __ASSET__gfx_debug_console_logo_png);
-		type.set ("gfx/debug/console_logo.png", Reflect.field (AssetType, "image".toUpperCase ()));
-		className.set ("gfx/debug/console_output.png", __ASSET__gfx_debug_console_output_png);
-		type.set ("gfx/debug/console_output.png", Reflect.field (AssetType, "image".toUpperCase ()));
-		className.set ("gfx/debug/console_pause.png", __ASSET__gfx_debug_console_pause_png);
-		type.set ("gfx/debug/console_pause.png", Reflect.field (AssetType, "image".toUpperCase ()));
-		className.set ("gfx/debug/console_play.png", __ASSET__gfx_debug_console_play_png);
-		type.set ("gfx/debug/console_play.png", Reflect.field (AssetType, "image".toUpperCase ()));
-		className.set ("gfx/debug/console_step.png", __ASSET__gfx_debug_console_step_png);
-		type.set ("gfx/debug/console_step.png", Reflect.field (AssetType, "image".toUpperCase ()));
-		className.set ("gfx/debug/console_visible.png", __ASSET__gfx_debug_console_visible_png);
-		type.set ("gfx/debug/console_visible.png", Reflect.field (AssetType, "image".toUpperCase ()));
-		className.set ("gfx/preloader/haxepunk.png", __ASSET__gfx_preloader_haxepunk_png);
-		type.set ("gfx/preloader/haxepunk.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		className.set ("graphics/debug/console_debug.png", __ASSET__graphics_debug_console_debug_png);
+		type.set ("graphics/debug/console_debug.png", AssetType.IMAGE);
+		className.set ("graphics/debug/console_hidden.png", __ASSET__graphics_debug_console_hidden_png);
+		type.set ("graphics/debug/console_hidden.png", AssetType.IMAGE);
+		className.set ("graphics/debug/console_logo.png", __ASSET__graphics_debug_console_logo_png);
+		type.set ("graphics/debug/console_logo.png", AssetType.IMAGE);
+		className.set ("graphics/debug/console_output.png", __ASSET__graphics_debug_console_output_png);
+		type.set ("graphics/debug/console_output.png", AssetType.IMAGE);
+		className.set ("graphics/debug/console_pause.png", __ASSET__graphics_debug_console_pause_png);
+		type.set ("graphics/debug/console_pause.png", AssetType.IMAGE);
+		className.set ("graphics/debug/console_play.png", __ASSET__graphics_debug_console_play_png);
+		type.set ("graphics/debug/console_play.png", AssetType.IMAGE);
+		className.set ("graphics/debug/console_step.png", __ASSET__graphics_debug_console_step_png);
+		type.set ("graphics/debug/console_step.png", AssetType.IMAGE);
+		className.set ("graphics/debug/console_visible.png", __ASSET__graphics_debug_console_visible_png);
+		type.set ("graphics/debug/console_visible.png", AssetType.IMAGE);
+		className.set ("graphics/preloader/haxepunk.png", __ASSET__graphics_preloader_haxepunk_png);
+		type.set ("graphics/preloader/haxepunk.png", AssetType.IMAGE);
 		className.set ("font/04B_03__.ttf", __ASSET__font_04b_03___ttf);
-		type.set ("font/04B_03__.ttf", Reflect.field (AssetType, "font".toUpperCase ()));
+		type.set ("font/04B_03__.ttf", AssetType.FONT);
+		className.set ("font/04B_03__.ttf.png", __ASSET__font_04b_03___ttf_png);
+		type.set ("font/04B_03__.ttf.png", AssetType.IMAGE);
 		className.set ("gfx/test/0.png", __ASSET__gfx_test_0_png);
-		type.set ("gfx/test/0.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		type.set ("gfx/test/0.png", AssetType.IMAGE);
 		className.set ("gfx/test/1.png", __ASSET__gfx_test_1_png);
-		type.set ("gfx/test/1.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		type.set ("gfx/test/1.png", AssetType.IMAGE);
 		className.set ("gfx/test/2.png", __ASSET__gfx_test_2_png);
-		type.set ("gfx/test/2.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		type.set ("gfx/test/2.png", AssetType.IMAGE);
 		className.set ("gfx/test/3.png", __ASSET__gfx_test_3_png);
-		type.set ("gfx/test/3.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		type.set ("gfx/test/3.png", AssetType.IMAGE);
 		className.set ("gfx/test/4.png", __ASSET__gfx_test_4_png);
-		type.set ("gfx/test/4.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		type.set ("gfx/test/4.png", AssetType.IMAGE);
 		className.set ("gfx/test/5.png", __ASSET__gfx_test_5_png);
-		type.set ("gfx/test/5.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		type.set ("gfx/test/5.png", AssetType.IMAGE);
 		className.set ("gfx/test/6.png", __ASSET__gfx_test_6_png);
-		type.set ("gfx/test/6.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		type.set ("gfx/test/6.png", AssetType.IMAGE);
 		className.set ("gfx/test/7.png", __ASSET__gfx_test_7_png);
-		type.set ("gfx/test/7.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		type.set ("gfx/test/7.png", AssetType.IMAGE);
 		className.set ("gfx/test/8.png", __ASSET__gfx_test_8_png);
-		type.set ("gfx/test/8.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		type.set ("gfx/test/8.png", AssetType.IMAGE);
 		className.set ("gfx/test/9.png", __ASSET__gfx_test_9_png);
-		type.set ("gfx/test/9.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		type.set ("gfx/test/9.png", AssetType.IMAGE);
 		className.set ("gfx/ui/blueMagda.png", __ASSET__gfx_ui_bluemagda_png);
-		type.set ("gfx/ui/blueMagda.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		type.set ("gfx/ui/blueMagda.png", AssetType.IMAGE);
 		className.set ("gfx/ui/greenMagda.png", __ASSET__gfx_ui_greenmagda_png);
-		type.set ("gfx/ui/greenMagda.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		type.set ("gfx/ui/greenMagda.png", AssetType.IMAGE);
 		className.set ("gfx/ui/greyDefault.png", __ASSET__gfx_ui_greydefault_png);
-		type.set ("gfx/ui/greyDefault.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		type.set ("gfx/ui/greyDefault.png", AssetType.IMAGE);
 		className.set ("gfx/ui/purpleMagda.png", __ASSET__gfx_ui_purplemagda_png);
-		type.set ("gfx/ui/purpleMagda.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		type.set ("gfx/ui/purpleMagda.png", AssetType.IMAGE);
 		className.set ("gfx/ui/themes.png", __ASSET__gfx_ui_themes_png);
-		type.set ("gfx/ui/themes.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		type.set ("gfx/ui/themes.png", AssetType.IMAGE);
 		className.set ("graphics/enemyBlack1.png", __ASSET__graphics_enemyblack1_png);
-		type.set ("graphics/enemyBlack1.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		type.set ("graphics/enemyBlack1.png", AssetType.IMAGE);
 		className.set ("graphics/enemyBlack2.png", __ASSET__graphics_enemyblack2_png);
-		type.set ("graphics/enemyBlack2.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		type.set ("graphics/enemyBlack2.png", AssetType.IMAGE);
 		className.set ("graphics/enemyBlack3.png", __ASSET__graphics_enemyblack3_png);
-		type.set ("graphics/enemyBlack3.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		type.set ("graphics/enemyBlack3.png", AssetType.IMAGE);
 		className.set ("graphics/enemyBlack4.png", __ASSET__graphics_enemyblack4_png);
-		type.set ("graphics/enemyBlack4.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		type.set ("graphics/enemyBlack4.png", AssetType.IMAGE);
 		className.set ("graphics/enemyBlack5.png", __ASSET__graphics_enemyblack5_png);
-		type.set ("graphics/enemyBlack5.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		type.set ("graphics/enemyBlack5.png", AssetType.IMAGE);
 		className.set ("graphics/laserBlue01.png", __ASSET__graphics_laserblue01_png);
-		type.set ("graphics/laserBlue01.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		type.set ("graphics/laserBlue01.png", AssetType.IMAGE);
 		className.set ("graphics/laserBlue10.png", __ASSET__graphics_laserblue10_png);
-		type.set ("graphics/laserBlue10.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		type.set ("graphics/laserBlue10.png", AssetType.IMAGE);
 		className.set ("graphics/laserGreen11.png", __ASSET__graphics_lasergreen11_png);
-		type.set ("graphics/laserGreen11.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		type.set ("graphics/laserGreen11.png", AssetType.IMAGE);
 		className.set ("graphics/playerShip1_green.png", __ASSET__graphics_playership1_green_png);
-		type.set ("graphics/playerShip1_green.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		type.set ("graphics/playerShip1_green.png", AssetType.IMAGE);
 		className.set ("font/04B_03__.ttf", __ASSET__font_5);
-		type.set ("font/04B_03__.ttf", Reflect.field (AssetType, "font".toUpperCase ()));
+		type.set ("font/04B_03__.ttf", AssetType.FONT);
 		className.set ("font/lythgame.ttf", __ASSET__font_lythgame_ttf);
-		type.set ("font/lythgame.ttf", Reflect.field (AssetType, "font".toUpperCase ()));
+		type.set ("font/lythgame.ttf", AssetType.FONT);
 		className.set ("font/lythgamescript.ttf", __ASSET__font_lythgamescript_ttf);
-		type.set ("font/lythgamescript.ttf", Reflect.field (AssetType, "font".toUpperCase ()));
+		type.set ("font/lythgamescript.ttf", AssetType.FONT);
 		className.set ("font/pf_ronda_seven.ttf", __ASSET__font_pf_ronda_seven_ttf);
-		type.set ("font/pf_ronda_seven.ttf", Reflect.field (AssetType, "font".toUpperCase ()));
+		type.set ("font/pf_ronda_seven.ttf", AssetType.FONT);
 		
 		
 		#elseif html5
 		
-		addExternal("gfx/debug/console_debug.png", "image", "gfx/debug/console_debug.png");
-		addExternal("gfx/debug/console_hidden.png", "image", "gfx/debug/console_hidden.png");
-		addExternal("gfx/debug/console_logo.png", "image", "gfx/debug/console_logo.png");
-		addExternal("gfx/debug/console_output.png", "image", "gfx/debug/console_output.png");
-		addExternal("gfx/debug/console_pause.png", "image", "gfx/debug/console_pause.png");
-		addExternal("gfx/debug/console_play.png", "image", "gfx/debug/console_play.png");
-		addExternal("gfx/debug/console_step.png", "image", "gfx/debug/console_step.png");
-		addExternal("gfx/debug/console_visible.png", "image", "gfx/debug/console_visible.png");
-		addExternal("gfx/preloader/haxepunk.png", "image", "gfx/preloader/haxepunk.png");
-		addEmbed("font/04B_03__.ttf", "font", __ASSET__font_04b_03___ttf);
-		addExternal("gfx/test/0.png", "image", "gfx/test/0.png");
-		addExternal("gfx/test/1.png", "image", "gfx/test/1.png");
-		addExternal("gfx/test/2.png", "image", "gfx/test/2.png");
-		addExternal("gfx/test/3.png", "image", "gfx/test/3.png");
-		addExternal("gfx/test/4.png", "image", "gfx/test/4.png");
-		addExternal("gfx/test/5.png", "image", "gfx/test/5.png");
-		addExternal("gfx/test/6.png", "image", "gfx/test/6.png");
-		addExternal("gfx/test/7.png", "image", "gfx/test/7.png");
-		addExternal("gfx/test/8.png", "image", "gfx/test/8.png");
-		addExternal("gfx/test/9.png", "image", "gfx/test/9.png");
-		addExternal("gfx/ui/blueMagda.png", "image", "gfx/ui/blueMagda.png");
-		addExternal("gfx/ui/greenMagda.png", "image", "gfx/ui/greenMagda.png");
-		addExternal("gfx/ui/greyDefault.png", "image", "gfx/ui/greyDefault.png");
-		addExternal("gfx/ui/purpleMagda.png", "image", "gfx/ui/purpleMagda.png");
-		addExternal("gfx/ui/themes.png", "image", "gfx/ui/themes.png");
-		addExternal("graphics/enemyBlack1.png", "image", "graphics/enemyBlack1.png");
-		addExternal("graphics/enemyBlack2.png", "image", "graphics/enemyBlack2.png");
-		addExternal("graphics/enemyBlack3.png", "image", "graphics/enemyBlack3.png");
-		addExternal("graphics/enemyBlack4.png", "image", "graphics/enemyBlack4.png");
-		addExternal("graphics/enemyBlack5.png", "image", "graphics/enemyBlack5.png");
-		addExternal("graphics/laserBlue01.png", "image", "graphics/laserBlue01.png");
-		addExternal("graphics/laserBlue10.png", "image", "graphics/laserBlue10.png");
-		addExternal("graphics/laserGreen11.png", "image", "graphics/laserGreen11.png");
-		addExternal("graphics/playerShip1_green.png", "image", "graphics/playerShip1_green.png");
-		addEmbed("font/04B_03__.ttf", "font", __ASSET__font_5);
-		addEmbed("font/lythgame.ttf", "font", __ASSET__font_lythgame_ttf);
-		addEmbed("font/lythgamescript.ttf", "font", __ASSET__font_lythgamescript_ttf);
-		addEmbed("font/pf_ronda_seven.ttf", "font", __ASSET__font_pf_ronda_seven_ttf);
+		var id;
+		id = "graphics/debug/console_debug.png";
+		path.set (id, id);
+		type.set (id, AssetType.IMAGE);
+		id = "graphics/debug/console_hidden.png";
+		path.set (id, id);
+		type.set (id, AssetType.IMAGE);
+		id = "graphics/debug/console_logo.png";
+		path.set (id, id);
+		type.set (id, AssetType.IMAGE);
+		id = "graphics/debug/console_output.png";
+		path.set (id, id);
+		type.set (id, AssetType.IMAGE);
+		id = "graphics/debug/console_pause.png";
+		path.set (id, id);
+		type.set (id, AssetType.IMAGE);
+		id = "graphics/debug/console_play.png";
+		path.set (id, id);
+		type.set (id, AssetType.IMAGE);
+		id = "graphics/debug/console_step.png";
+		path.set (id, id);
+		type.set (id, AssetType.IMAGE);
+		id = "graphics/debug/console_visible.png";
+		path.set (id, id);
+		type.set (id, AssetType.IMAGE);
+		id = "graphics/preloader/haxepunk.png";
+		path.set (id, id);
+		type.set (id, AssetType.IMAGE);
+		id = "font/04B_03__.ttf";
+		className.set (id, __ASSET__font_04b_03___ttf);
+		type.set (id, AssetType.FONT);
+		id = "font/04B_03__.ttf.png";
+		path.set (id, id);
+		type.set (id, AssetType.IMAGE);
+		id = "gfx/test/0.png";
+		path.set (id, id);
+		type.set (id, AssetType.IMAGE);
+		id = "gfx/test/1.png";
+		path.set (id, id);
+		type.set (id, AssetType.IMAGE);
+		id = "gfx/test/2.png";
+		path.set (id, id);
+		type.set (id, AssetType.IMAGE);
+		id = "gfx/test/3.png";
+		path.set (id, id);
+		type.set (id, AssetType.IMAGE);
+		id = "gfx/test/4.png";
+		path.set (id, id);
+		type.set (id, AssetType.IMAGE);
+		id = "gfx/test/5.png";
+		path.set (id, id);
+		type.set (id, AssetType.IMAGE);
+		id = "gfx/test/6.png";
+		path.set (id, id);
+		type.set (id, AssetType.IMAGE);
+		id = "gfx/test/7.png";
+		path.set (id, id);
+		type.set (id, AssetType.IMAGE);
+		id = "gfx/test/8.png";
+		path.set (id, id);
+		type.set (id, AssetType.IMAGE);
+		id = "gfx/test/9.png";
+		path.set (id, id);
+		type.set (id, AssetType.IMAGE);
+		id = "gfx/ui/blueMagda.png";
+		path.set (id, id);
+		type.set (id, AssetType.IMAGE);
+		id = "gfx/ui/greenMagda.png";
+		path.set (id, id);
+		type.set (id, AssetType.IMAGE);
+		id = "gfx/ui/greyDefault.png";
+		path.set (id, id);
+		type.set (id, AssetType.IMAGE);
+		id = "gfx/ui/purpleMagda.png";
+		path.set (id, id);
+		type.set (id, AssetType.IMAGE);
+		id = "gfx/ui/themes.png";
+		path.set (id, id);
+		type.set (id, AssetType.IMAGE);
+		id = "graphics/enemyBlack1.png";
+		path.set (id, id);
+		type.set (id, AssetType.IMAGE);
+		id = "graphics/enemyBlack2.png";
+		path.set (id, id);
+		type.set (id, AssetType.IMAGE);
+		id = "graphics/enemyBlack3.png";
+		path.set (id, id);
+		type.set (id, AssetType.IMAGE);
+		id = "graphics/enemyBlack4.png";
+		path.set (id, id);
+		type.set (id, AssetType.IMAGE);
+		id = "graphics/enemyBlack5.png";
+		path.set (id, id);
+		type.set (id, AssetType.IMAGE);
+		id = "graphics/laserBlue01.png";
+		path.set (id, id);
+		type.set (id, AssetType.IMAGE);
+		id = "graphics/laserBlue10.png";
+		path.set (id, id);
+		type.set (id, AssetType.IMAGE);
+		id = "graphics/laserGreen11.png";
+		path.set (id, id);
+		type.set (id, AssetType.IMAGE);
+		id = "graphics/playerShip1_green.png";
+		path.set (id, id);
+		type.set (id, AssetType.IMAGE);
+		id = "font/04B_03__.ttf";
+		className.set (id, __ASSET__font_5);
+		type.set (id, AssetType.FONT);
+		id = "font/lythgame.ttf";
+		className.set (id, __ASSET__font_lythgame_ttf);
+		type.set (id, AssetType.FONT);
+		id = "font/lythgamescript.ttf";
+		className.set (id, __ASSET__font_lythgamescript_ttf);
+		type.set (id, AssetType.FONT);
+		id = "font/pf_ronda_seven.ttf";
+		className.set (id, __ASSET__font_pf_ronda_seven_ttf);
+		type.set (id, AssetType.FONT);
 		
 		
 		#else
 		
 		#if (windows || mac || linux)
 		
-		var loadManifest = false;
+		var useManifest = false;
 		
-		className.set ("gfx/debug/console_debug.png", __ASSET__gfx_debug_console_debug_png);
-		type.set ("gfx/debug/console_debug.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		className.set ("graphics/debug/console_debug.png", __ASSET__graphics_debug_console_debug_png);
+		type.set ("graphics/debug/console_debug.png", AssetType.IMAGE);
 		
-		className.set ("gfx/debug/console_hidden.png", __ASSET__gfx_debug_console_hidden_png);
-		type.set ("gfx/debug/console_hidden.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		className.set ("graphics/debug/console_hidden.png", __ASSET__graphics_debug_console_hidden_png);
+		type.set ("graphics/debug/console_hidden.png", AssetType.IMAGE);
 		
-		className.set ("gfx/debug/console_logo.png", __ASSET__gfx_debug_console_logo_png);
-		type.set ("gfx/debug/console_logo.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		className.set ("graphics/debug/console_logo.png", __ASSET__graphics_debug_console_logo_png);
+		type.set ("graphics/debug/console_logo.png", AssetType.IMAGE);
 		
-		className.set ("gfx/debug/console_output.png", __ASSET__gfx_debug_console_output_png);
-		type.set ("gfx/debug/console_output.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		className.set ("graphics/debug/console_output.png", __ASSET__graphics_debug_console_output_png);
+		type.set ("graphics/debug/console_output.png", AssetType.IMAGE);
 		
-		className.set ("gfx/debug/console_pause.png", __ASSET__gfx_debug_console_pause_png);
-		type.set ("gfx/debug/console_pause.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		className.set ("graphics/debug/console_pause.png", __ASSET__graphics_debug_console_pause_png);
+		type.set ("graphics/debug/console_pause.png", AssetType.IMAGE);
 		
-		className.set ("gfx/debug/console_play.png", __ASSET__gfx_debug_console_play_png);
-		type.set ("gfx/debug/console_play.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		className.set ("graphics/debug/console_play.png", __ASSET__graphics_debug_console_play_png);
+		type.set ("graphics/debug/console_play.png", AssetType.IMAGE);
 		
-		className.set ("gfx/debug/console_step.png", __ASSET__gfx_debug_console_step_png);
-		type.set ("gfx/debug/console_step.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		className.set ("graphics/debug/console_step.png", __ASSET__graphics_debug_console_step_png);
+		type.set ("graphics/debug/console_step.png", AssetType.IMAGE);
 		
-		className.set ("gfx/debug/console_visible.png", __ASSET__gfx_debug_console_visible_png);
-		type.set ("gfx/debug/console_visible.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		className.set ("graphics/debug/console_visible.png", __ASSET__graphics_debug_console_visible_png);
+		type.set ("graphics/debug/console_visible.png", AssetType.IMAGE);
 		
-		className.set ("gfx/preloader/haxepunk.png", __ASSET__gfx_preloader_haxepunk_png);
-		type.set ("gfx/preloader/haxepunk.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		className.set ("graphics/preloader/haxepunk.png", __ASSET__graphics_preloader_haxepunk_png);
+		type.set ("graphics/preloader/haxepunk.png", AssetType.IMAGE);
 		
 		className.set ("font/04B_03__.ttf", __ASSET__font_04b_03___ttf);
-		type.set ("font/04B_03__.ttf", Reflect.field (AssetType, "font".toUpperCase ()));
+		type.set ("font/04B_03__.ttf", AssetType.FONT);
+		
+		className.set ("font/04B_03__.ttf.png", __ASSET__font_04b_03___ttf_png);
+		type.set ("font/04B_03__.ttf.png", AssetType.IMAGE);
 		
 		className.set ("gfx/test/0.png", __ASSET__gfx_test_0_png);
-		type.set ("gfx/test/0.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		type.set ("gfx/test/0.png", AssetType.IMAGE);
 		
 		className.set ("gfx/test/1.png", __ASSET__gfx_test_1_png);
-		type.set ("gfx/test/1.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		type.set ("gfx/test/1.png", AssetType.IMAGE);
 		
 		className.set ("gfx/test/2.png", __ASSET__gfx_test_2_png);
-		type.set ("gfx/test/2.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		type.set ("gfx/test/2.png", AssetType.IMAGE);
 		
 		className.set ("gfx/test/3.png", __ASSET__gfx_test_3_png);
-		type.set ("gfx/test/3.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		type.set ("gfx/test/3.png", AssetType.IMAGE);
 		
 		className.set ("gfx/test/4.png", __ASSET__gfx_test_4_png);
-		type.set ("gfx/test/4.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		type.set ("gfx/test/4.png", AssetType.IMAGE);
 		
 		className.set ("gfx/test/5.png", __ASSET__gfx_test_5_png);
-		type.set ("gfx/test/5.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		type.set ("gfx/test/5.png", AssetType.IMAGE);
 		
 		className.set ("gfx/test/6.png", __ASSET__gfx_test_6_png);
-		type.set ("gfx/test/6.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		type.set ("gfx/test/6.png", AssetType.IMAGE);
 		
 		className.set ("gfx/test/7.png", __ASSET__gfx_test_7_png);
-		type.set ("gfx/test/7.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		type.set ("gfx/test/7.png", AssetType.IMAGE);
 		
 		className.set ("gfx/test/8.png", __ASSET__gfx_test_8_png);
-		type.set ("gfx/test/8.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		type.set ("gfx/test/8.png", AssetType.IMAGE);
 		
 		className.set ("gfx/test/9.png", __ASSET__gfx_test_9_png);
-		type.set ("gfx/test/9.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		type.set ("gfx/test/9.png", AssetType.IMAGE);
 		
 		className.set ("gfx/ui/blueMagda.png", __ASSET__gfx_ui_bluemagda_png);
-		type.set ("gfx/ui/blueMagda.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		type.set ("gfx/ui/blueMagda.png", AssetType.IMAGE);
 		
 		className.set ("gfx/ui/greenMagda.png", __ASSET__gfx_ui_greenmagda_png);
-		type.set ("gfx/ui/greenMagda.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		type.set ("gfx/ui/greenMagda.png", AssetType.IMAGE);
 		
 		className.set ("gfx/ui/greyDefault.png", __ASSET__gfx_ui_greydefault_png);
-		type.set ("gfx/ui/greyDefault.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		type.set ("gfx/ui/greyDefault.png", AssetType.IMAGE);
 		
 		className.set ("gfx/ui/purpleMagda.png", __ASSET__gfx_ui_purplemagda_png);
-		type.set ("gfx/ui/purpleMagda.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		type.set ("gfx/ui/purpleMagda.png", AssetType.IMAGE);
 		
 		className.set ("gfx/ui/themes.png", __ASSET__gfx_ui_themes_png);
-		type.set ("gfx/ui/themes.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		type.set ("gfx/ui/themes.png", AssetType.IMAGE);
 		
 		className.set ("graphics/enemyBlack1.png", __ASSET__graphics_enemyblack1_png);
-		type.set ("graphics/enemyBlack1.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		type.set ("graphics/enemyBlack1.png", AssetType.IMAGE);
 		
 		className.set ("graphics/enemyBlack2.png", __ASSET__graphics_enemyblack2_png);
-		type.set ("graphics/enemyBlack2.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		type.set ("graphics/enemyBlack2.png", AssetType.IMAGE);
 		
 		className.set ("graphics/enemyBlack3.png", __ASSET__graphics_enemyblack3_png);
-		type.set ("graphics/enemyBlack3.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		type.set ("graphics/enemyBlack3.png", AssetType.IMAGE);
 		
 		className.set ("graphics/enemyBlack4.png", __ASSET__graphics_enemyblack4_png);
-		type.set ("graphics/enemyBlack4.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		type.set ("graphics/enemyBlack4.png", AssetType.IMAGE);
 		
 		className.set ("graphics/enemyBlack5.png", __ASSET__graphics_enemyblack5_png);
-		type.set ("graphics/enemyBlack5.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		type.set ("graphics/enemyBlack5.png", AssetType.IMAGE);
 		
 		className.set ("graphics/laserBlue01.png", __ASSET__graphics_laserblue01_png);
-		type.set ("graphics/laserBlue01.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		type.set ("graphics/laserBlue01.png", AssetType.IMAGE);
 		
 		className.set ("graphics/laserBlue10.png", __ASSET__graphics_laserblue10_png);
-		type.set ("graphics/laserBlue10.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		type.set ("graphics/laserBlue10.png", AssetType.IMAGE);
 		
 		className.set ("graphics/laserGreen11.png", __ASSET__graphics_lasergreen11_png);
-		type.set ("graphics/laserGreen11.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		type.set ("graphics/laserGreen11.png", AssetType.IMAGE);
 		
 		className.set ("graphics/playerShip1_green.png", __ASSET__graphics_playership1_green_png);
-		type.set ("graphics/playerShip1_green.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		type.set ("graphics/playerShip1_green.png", AssetType.IMAGE);
 		
 		className.set ("font/04B_03__.ttf", __ASSET__font_5);
-		type.set ("font/04B_03__.ttf", Reflect.field (AssetType, "font".toUpperCase ()));
+		type.set ("font/04B_03__.ttf", AssetType.FONT);
 		
 		className.set ("font/lythgame.ttf", __ASSET__font_lythgame_ttf);
-		type.set ("font/lythgame.ttf", Reflect.field (AssetType, "font".toUpperCase ()));
+		type.set ("font/lythgame.ttf", AssetType.FONT);
 		
 		className.set ("font/lythgamescript.ttf", __ASSET__font_lythgamescript_ttf);
-		type.set ("font/lythgamescript.ttf", Reflect.field (AssetType, "font".toUpperCase ()));
+		type.set ("font/lythgamescript.ttf", AssetType.FONT);
 		
 		className.set ("font/pf_ronda_seven.ttf", __ASSET__font_pf_ronda_seven_ttf);
-		type.set ("font/pf_ronda_seven.ttf", Reflect.field (AssetType, "font".toUpperCase ()));
+		type.set ("font/pf_ronda_seven.ttf", AssetType.FONT);
 		
+		
+		if (useManifest) {
+			
+			loadManifest ();
+			
+			if (Sys.args ().indexOf ("-livereload") > -1) {
+				
+				var path = FileSystem.fullPath ("manifest");
+				lastModified = FileSystem.stat (path).mtime.getTime ();
+				
+				timer = new Timer (2000);
+				timer.run = function () {
+					
+					var modified = FileSystem.stat (path).mtime.getTime ();
+					
+					if (modified > lastModified) {
+						
+						lastModified = modified;
+						loadManifest ();
+						
+						if (eventCallback != null) {
+							
+							eventCallback (this, "change");
+							
+						}
+						
+					}
+					
+				}
+				
+			}
+			
+		}
 		
 		#else
 		
-		var loadManifest = true;
+		loadManifest ();
 		
 		#end
-		
-		if (loadManifest) {
-			try {
-				
-				#if blackberry
-				var bytes = ByteArray.readFile ("app/native/manifest");
-				#elseif tizen
-				var bytes = ByteArray.readFile ("../res/manifest");
-				#elseif emscripten
-				var bytes = ByteArray.readFile ("assets/manifest");
-				#else
-				var bytes = ByteArray.readFile ("manifest");
-				#end
-				
-				if (bytes != null) {
-					
-					bytes.position = 0;
-					
-					if (bytes.length > 0) {
-						
-						var data = bytes.readUTFBytes (bytes.length);
-						
-						if (data != null && data.length > 0) {
-							
-							var manifest:Array<AssetData> = Unserializer.run (data);
-							
-							for (asset in manifest) {
-								
-								if (!className.exists(asset.id)) {
-									
-									path.set (asset.id, asset.path);
-									type.set (asset.id, asset.type);
-									
-								}
-							}
-						
-						}
-					
-					}
-				
-				} else {
-				
-					trace ("Warning: Could not load asset manifest");
-				
-				}
-			
-			} catch (e:Dynamic) {
-			
-				trace ("Warning: Could not load asset manifest");
-			
-			}
-		
-		}
-		
 		#end
 		
 	}
-	
-	
-	#if html5
-	private function addEmbed(id:String, kind:String, value:Dynamic):Void {
-		className.set(id, value);
-		type.set(id, Reflect.field(AssetType, kind.toUpperCase()));
-	}
-	
-	
-	private function addExternal(id:String, kind:String, value:String):Void {
-		path.set(id, value);
-		type.set(id, Reflect.field(AssetType, kind.toUpperCase()));
-	}
-	#end
 	
 	
 	public override function exists (id:String, type:AssetType):Bool {
 		
-		var assetType = DefaultAssetLibrary.type.get (id);
+		var assetType = this.type.get (id);
 		
 		#if pixi
 		
@@ -440,19 +500,11 @@ class DefaultAssetLibrary extends AssetLibrary {
 	
 	public override function getBytes (id:String):ByteArray {
 		
-		#if pixi
-		
-		return null;
-		
-		#elseif (flash)
+		#if (flash)
 		
 		return cast (Type.createInstance (className.get (id), []), ByteArray);
-		
-		#elseif openfl_html5
-		
-		return null;
-		
-		#elseif js
+
+		#elseif (js || openfl_html5 || pixi)
 		
 		var bytes:ByteArray = null;
 		var data = ApplicationMain.urlLoaders.get (path.get (id)).data;
@@ -652,6 +704,25 @@ class DefaultAssetLibrary extends AssetLibrary {
 	}
 	
 	
+	public override function list (type:AssetType):Array<String> {
+		
+		var items = [];
+		
+		for (id in this.type.keys ()) {
+			
+			if (type == null || exists (id, type)) {
+				
+				items.push (id);
+				
+			}
+			
+		}
+		
+		return items;
+		
+	}
+	
+	
 	public override function loadBitmapData (id:String, handler:BitmapData -> Void):Void {
 		
 		#if pixi
@@ -749,6 +820,64 @@ class DefaultAssetLibrary extends AssetLibrary {
 		#end
 		
 	}
+	
+	
+	#if (!flash && !html5)
+	private function loadManifest ():Void {
+		
+		try {
+			
+			#if blackberry
+			var bytes = ByteArray.readFile ("app/native/manifest");
+			#elseif tizen
+			var bytes = ByteArray.readFile ("../res/manifest");
+			#elseif emscripten
+			var bytes = ByteArray.readFile ("assets/manifest");
+			#else
+			var bytes = ByteArray.readFile ("manifest");
+			#end
+			
+			if (bytes != null) {
+				
+				bytes.position = 0;
+				
+				if (bytes.length > 0) {
+					
+					var data = bytes.readUTFBytes (bytes.length);
+					
+					if (data != null && data.length > 0) {
+						
+						var manifest:Array<Dynamic> = Unserializer.run (data);
+						
+						for (asset in manifest) {
+							
+							if (!className.exists (asset.id)) {
+								
+								path.set (asset.id, asset.path);
+								type.set (asset.id, Type.createEnum (AssetType, asset.type));
+								
+							}
+							
+						}
+						
+					}
+					
+				}
+				
+			} else {
+				
+				trace ("Warning: Could not load asset manifest (bytes was null)");
+				
+			}
+		
+		} catch (e:Dynamic) {
+			
+			trace ('Warning: Could not load asset manifest (${e})');
+			
+		}
+		
+	}
+	#end
 	
 	
 	public override function loadMusic (id:String, handler:Sound -> Void):Void {
@@ -858,16 +987,17 @@ class DefaultAssetLibrary extends AssetLibrary {
 #if pixi
 #elseif flash
 
-@:keep class __ASSET__gfx_debug_console_debug_png extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }
-@:keep class __ASSET__gfx_debug_console_hidden_png extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }
-@:keep class __ASSET__gfx_debug_console_logo_png extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }
-@:keep class __ASSET__gfx_debug_console_output_png extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }
-@:keep class __ASSET__gfx_debug_console_pause_png extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }
-@:keep class __ASSET__gfx_debug_console_play_png extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }
-@:keep class __ASSET__gfx_debug_console_step_png extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }
-@:keep class __ASSET__gfx_debug_console_visible_png extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }
-@:keep class __ASSET__gfx_preloader_haxepunk_png extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }
-@:keep class __ASSET__font_04b_03___ttf extends flash.text.Font { }
+@:keep class __ASSET__graphics_debug_console_debug_png extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }
+@:keep class __ASSET__graphics_debug_console_hidden_png extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }
+@:keep class __ASSET__graphics_debug_console_logo_png extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }
+@:keep class __ASSET__graphics_debug_console_output_png extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }
+@:keep class __ASSET__graphics_debug_console_pause_png extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }
+@:keep class __ASSET__graphics_debug_console_play_png extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }
+@:keep class __ASSET__graphics_debug_console_step_png extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }
+@:keep class __ASSET__graphics_debug_console_visible_png extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }
+@:keep class __ASSET__graphics_preloader_haxepunk_png extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }
+@:keep class __ASSET__font_04b_03___ttf extends openfl.text.Font { }
+@:keep class __ASSET__font_04b_03___ttf_png extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }
 @:keep class __ASSET__gfx_test_0_png extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }
 @:keep class __ASSET__gfx_test_1_png extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }
 @:keep class __ASSET__gfx_test_2_png extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }
@@ -892,10 +1022,10 @@ class DefaultAssetLibrary extends AssetLibrary {
 @:keep class __ASSET__graphics_laserblue10_png extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }
 @:keep class __ASSET__graphics_lasergreen11_png extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }
 @:keep class __ASSET__graphics_playership1_green_png extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }
-@:keep class __ASSET__font_5 extends flash.text.Font { }
-@:keep class __ASSET__font_lythgame_ttf extends flash.text.Font { }
-@:keep class __ASSET__font_lythgamescript_ttf extends flash.text.Font { }
-@:keep class __ASSET__font_pf_ronda_seven_ttf extends flash.text.Font { }
+@:keep class __ASSET__font_5 extends openfl.text.Font { }
+@:keep class __ASSET__font_lythgame_ttf extends openfl.text.Font { }
+@:keep class __ASSET__font_lythgamescript_ttf extends openfl.text.Font { }
+@:keep class __ASSET__font_pf_ronda_seven_ttf extends openfl.text.Font { }
 
 
 #elseif html5
@@ -934,6 +1064,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 
 
 
+
 @:keep class __ASSET__font_5 extends flash.text.Font { #if (!openfl_html5_dom) public function new () { super (); fontName = "font/04B_03__.ttf"; } #end }
 @:keep class __ASSET__font_lythgame_ttf extends flash.text.Font { #if (!openfl_html5_dom) public function new () { super (); fontName = "font/lythgame.ttf"; } #end }
 @:keep class __ASSET__font_lythgamescript_ttf extends flash.text.Font { #if (!openfl_html5_dom) public function new () { super (); fontName = "font/lythgamescript.ttf"; } #end }
@@ -943,16 +1074,17 @@ class DefaultAssetLibrary extends AssetLibrary {
 #elseif (windows || mac || linux)
 
 
-@:bitmap("/usr/lib/haxe/lib/HaxePunk/git/assets/graphics/debug/console_debug.png") class __ASSET__gfx_debug_console_debug_png extends flash.display.BitmapData {}
-@:bitmap("/usr/lib/haxe/lib/HaxePunk/git/assets/graphics/debug/console_hidden.png") class __ASSET__gfx_debug_console_hidden_png extends flash.display.BitmapData {}
-@:bitmap("/usr/lib/haxe/lib/HaxePunk/git/assets/graphics/debug/console_logo.png") class __ASSET__gfx_debug_console_logo_png extends flash.display.BitmapData {}
-@:bitmap("/usr/lib/haxe/lib/HaxePunk/git/assets/graphics/debug/console_output.png") class __ASSET__gfx_debug_console_output_png extends flash.display.BitmapData {}
-@:bitmap("/usr/lib/haxe/lib/HaxePunk/git/assets/graphics/debug/console_pause.png") class __ASSET__gfx_debug_console_pause_png extends flash.display.BitmapData {}
-@:bitmap("/usr/lib/haxe/lib/HaxePunk/git/assets/graphics/debug/console_play.png") class __ASSET__gfx_debug_console_play_png extends flash.display.BitmapData {}
-@:bitmap("/usr/lib/haxe/lib/HaxePunk/git/assets/graphics/debug/console_step.png") class __ASSET__gfx_debug_console_step_png extends flash.display.BitmapData {}
-@:bitmap("/usr/lib/haxe/lib/HaxePunk/git/assets/graphics/debug/console_visible.png") class __ASSET__gfx_debug_console_visible_png extends flash.display.BitmapData {}
-@:bitmap("/usr/lib/haxe/lib/HaxePunk/git/assets/graphics/preloader/haxepunk.png") class __ASSET__gfx_preloader_haxepunk_png extends flash.display.BitmapData {}
-@:font("/usr/lib/haxe/lib/HaxePunk/git/assets/font/04B_03__.ttf") class __ASSET__font_04b_03___ttf extends flash.text.Font {}
+@:bitmap("/usr/lib/haxe/lib/HaxePunk/2,5,3/assets/graphics/debug/console_debug.png") class __ASSET__graphics_debug_console_debug_png extends flash.display.BitmapData {}
+@:bitmap("/usr/lib/haxe/lib/HaxePunk/2,5,3/assets/graphics/debug/console_hidden.png") class __ASSET__graphics_debug_console_hidden_png extends flash.display.BitmapData {}
+@:bitmap("/usr/lib/haxe/lib/HaxePunk/2,5,3/assets/graphics/debug/console_logo.png") class __ASSET__graphics_debug_console_logo_png extends flash.display.BitmapData {}
+@:bitmap("/usr/lib/haxe/lib/HaxePunk/2,5,3/assets/graphics/debug/console_output.png") class __ASSET__graphics_debug_console_output_png extends flash.display.BitmapData {}
+@:bitmap("/usr/lib/haxe/lib/HaxePunk/2,5,3/assets/graphics/debug/console_pause.png") class __ASSET__graphics_debug_console_pause_png extends flash.display.BitmapData {}
+@:bitmap("/usr/lib/haxe/lib/HaxePunk/2,5,3/assets/graphics/debug/console_play.png") class __ASSET__graphics_debug_console_play_png extends flash.display.BitmapData {}
+@:bitmap("/usr/lib/haxe/lib/HaxePunk/2,5,3/assets/graphics/debug/console_step.png") class __ASSET__graphics_debug_console_step_png extends flash.display.BitmapData {}
+@:bitmap("/usr/lib/haxe/lib/HaxePunk/2,5,3/assets/graphics/debug/console_visible.png") class __ASSET__graphics_debug_console_visible_png extends flash.display.BitmapData {}
+@:bitmap("/usr/lib/haxe/lib/HaxePunk/2,5,3/assets/graphics/preloader/haxepunk.png") class __ASSET__graphics_preloader_haxepunk_png extends flash.display.BitmapData {}
+@:font("/usr/lib/haxe/lib/HaxePunk/2,5,3/assets/font/04B_03__.ttf") class __ASSET__font_04b_03___ttf extends flash.text.Font {}
+@:bitmap("/usr/lib/haxe/lib/HaxePunk/2,5,3/assets/font/04B_03__.ttf.png") class __ASSET__font_04b_03___ttf_png extends flash.display.BitmapData {}
 @:bitmap("assets/gfx/test/0.png") class __ASSET__gfx_test_0_png extends flash.display.BitmapData {}
 @:bitmap("assets/gfx/test/1.png") class __ASSET__gfx_test_1_png extends flash.display.BitmapData {}
 @:bitmap("assets/gfx/test/2.png") class __ASSET__gfx_test_2_png extends flash.display.BitmapData {}
