@@ -29,6 +29,7 @@ class MainScene extends Scene
 	private var main:Main;
 	private var shmup:Shmup;
 	private var currentSample:String;
+	private var previousSample:String;
 	
 	private var startbutton:ToggleButton;
 	private var selectbutton:ToggleButton;
@@ -93,19 +94,29 @@ class MainScene extends Scene
 	public override function update()
 	{
 		super.update();
+
 		if ( player != null )
 		{
 			shmup.playerX = player.pos.x;
 			shmup.playerY = player.pos.y;
 		}
-		shmup.update();
+
+		if ( startbutton.checked )
+			shmup.update();
 	}
 
 	private function onClickedStart(e:ControlEvent):Void
 	{
-		currentSample = main.getText();
-		shmup.cleanup();
-		readShmup();
+		if ( startbutton.checked )
+		{
+			currentSample = main.getText();
+			if ( previousSample != currentSample )
+			{
+				shmup.cleanup();
+				readShmup();
+				previousSample = currentSample;
+			}
+		}
 	}
 
 	private function onClickedSelect(e:ControlEvent):Void
@@ -121,6 +132,7 @@ class MainScene extends Scene
 		selectbutton.checked = false;
 		checkSelectButton();
 
+		startbutton.checked = true;
 		shmup.cleanup();
 		readShmup();
 	}
