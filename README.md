@@ -10,3 +10,6 @@ To compile, it's as simple as typing:
 ```
 lime test flash
 ```
+
+#Art credits
+The demo uses amazing art from Kenny's (www.kenney.nl) free Shmup game art pack.
