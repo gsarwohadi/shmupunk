@@ -47,6 +47,7 @@ class Actor
 	private var wasInScreen = false;
 	private var sPos:Xy;
 	private var shmup(default, null):Shmup;
+	private var angleMod:Int;
 	
 	public function new(name:String, args:Array<Float> = null, parent:Actor = null)
 	{
@@ -101,6 +102,7 @@ class Actor
 			parent.children.push(this);
 		
 		shmup = Shmup.i;
+		angleMod = (Shmup.i.mode == ShmupMode.Horizontal)? 90 : 0;
 	}
 	
 	public function update():Bool
@@ -111,7 +113,7 @@ class Actor
 		
 		var x = xVar.value;
 		var y = yVar.value;
-		var angle = angleVar.value * Math.PI / 180;
+		var angle = (angleVar.value - angleMod) * Math.PI / 180;
 		var speed = speedVar.value;
 		
 		//HXP.console.log(["Actor", x, y, angleVar.value, speed]);
@@ -270,7 +272,7 @@ class Actor
 				//var py = shmup.playerY / (shmup.screenY + shmup.screenHeight);
 				var py = shmup.playerY / shmup.screenHeight;
 				//HXP.console.log([shmup.playerX, shmup.playerY, px, py]);
-				return Math.atan2(px - xVar.value, py - yVar.value) * 180 / Math.PI;
+				return (Math.atan2(px - xVar.value, py - yVar.value) * 180 / Math.PI) + angleMod;
 				
 			case "$distanceToPlayer", "$dtp":
 				var ox = shmup.playerX - xVar.value * shmup.screenWidth;

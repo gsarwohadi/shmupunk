@@ -3,7 +3,7 @@ class Sample {
 ["fire bullet",
 ":stage
 main
-	fire 0, 1"],
+	fire -90, 1"],
 ["V nway bullet",
 ":stage
 main
@@ -26,7 +26,7 @@ vnway count, angle
 ["wave bullet",
 ":stage
 main
-	repeat 5
+	repeat 400
 		rfBullet -45, 5
 		wait 30
 		rfBullet 45, -5
@@ -34,13 +34,25 @@ main
 :bullet
 rfBullet angle, roll
 	@angle = angle
-	@speed = 1
+	@speed = 0.1__0.5
 	a = $angleToPlayer
-	repeat 10
-		wait 3
-		fire a, 1
+	repeat 4
+		wait 2
+		variableSpeedBullet a, 0.1
 		a += roll
-	vanish"],
+	vanish
+variableSpeedBullet angle, speed
+	@angle = angle
+	@speed = speed
+	wait 60
+	@speed <+= speed * 1.5
+homing a
+	vx = sin(a) * 0.01
+	vy = cos(a) * 0.01
+	@x <+= vx
+	@y <+= vy
+	vx <+= ($px - @x) * 0.003
+	vy <+= ($py - @y) * 0.003"],
 ["bounce bullet",
 ":stage
 main

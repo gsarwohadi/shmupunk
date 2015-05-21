@@ -43,8 +43,8 @@ class MainScene extends Scene
 		
 		super();
 		
-		setSample(Sample.s.length - 1);
-		//setSample(1);
+		//setSample(Sample.s.length - 1);
+		setSample(0);
 		shmup = new Shmup(HXP.halfWidth, 0, HXP.halfWidth, HXP.height, this);
 		
 		//HXP.console.log([shmup.playerX, shmup.playerY]);

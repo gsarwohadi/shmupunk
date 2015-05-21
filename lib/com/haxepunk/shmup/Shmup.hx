@@ -16,6 +16,7 @@ class Shmup
 	public var screenY:Float;
 	public var screenWidth:Float;
 	public var screenHeight:Float;
+	public var mode:ShmupMode;
 	
 	public var playerX = 160.0;
 	public var playerY = 240.0;
@@ -31,7 +32,7 @@ class Shmup
 	
 	private var scene:Scene;
 	
-	public function new(x:Float, y:Float, width:Float, height:Float, scene:Scene)
+	public function new(x:Float, y:Float, width:Float, height:Float, scene:Scene, ?mode:ShmupMode = ShumpMode.Vertical)
 	{
 		screenX = x;
 		screenY = y;
@@ -39,6 +40,7 @@ class Shmup
 		screenHeight = height;
 		
 		this.scene = scene;
+		this.mode = mode;
 		
 		entities = new Array<ShmupEntity>();
 		
@@ -152,4 +154,10 @@ class Shmup
 		}
 		return c;
 	}
+}
+
+enum ShmupMode
+{
+	Horizontal;
+	Vertical;
 }

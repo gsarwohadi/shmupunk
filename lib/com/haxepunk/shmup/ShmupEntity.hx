@@ -105,7 +105,7 @@ class ShmupEntity extends Entity
 			}
 			
 			if ( image != null )
-				image.angle = actor.angleVar.value;
+				image.angle = (actor.angleVar.value) + 90;
 
 			pPos.xy = pos;
 			x = pPos.x;
